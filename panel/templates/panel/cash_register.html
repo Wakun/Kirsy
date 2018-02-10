@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Program Kasowy</title>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'panel/cash-register.css' %}" />
+
+  
+</head>
+<body>
+  <div id="register">
+  <div id="ticket">
+    <h1>Kasa</h1>
+            <table>
+                <tbody id="entries">
+                    <tr><td>PLU</td><td>Nazwa</td><td>Ilość</td><td>Cena</td></tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th></th>
+                        <th>Suma</th>
+                        <th id="total">0.00 zł</th>
+                    </tr>
+                </tfoot>
+            </table>
+  </div>
+  <form id="entry">
+    <input id="newEntry" autofocus placeholder="PLU">
+      <input id="quantity" placeholder="Ilość">
+      <input type="submit" value="submit" style="visibility: hidden !important;">
+  </form>
+
+      <form method="post">
+          {% csrf_token %}
+          <button type="submit">Zapisz</button>
+          <input title="PLU" type="text" id="allplu" name="plulist" style="visibility: hidden;">
+          <input title="Ilość" type="text" id="quant" name="quant" style="visibility: hidden;">
+          <input title="KSK" type="checkbox" name="is_ksk" onclick="showInput(this);" />
+          <p id="ksk_num"></p>
+      </form>
+  </div>
+
+    <script>
+        var total = 0;
+        var price = 0;
+        var productsJSONList = (("{{products_json}}").replace(/&(l|g|quo)t;/g, function(a,b){
+            return {
+                l   : '<',
+                g   : '>',
+                quo : '"'
+            }[b];
+        }));
+        var prod = JSON.parse(productsJSONList);
+
+
+        document.getElementById('entry').addEventListener('submit', enter);
+        function enter(event) {
+            event.preventDefault();
+            var entry = document.getElementById('newEntry').value;
+            var quantity = document.getElementById('quantity').value;
+            if (quantity < 1) {
+                alert('Niepoprawna ilość!');
+                return false
+            }
+            for (var i = 0; prod.length; i++) {
+                var obj = prod[i];
+                if (obj[0].toString() === entry.toString()) {
+                    price = parseFloat(obj[2]) * quantity;
+
+                    currency = currencyFormat(price);
+                    document.getElementById('entries').innerHTML += '<tr><td>' + obj[0] + '</td><td>' + obj[1] + '</td><td>' + quantity + '</td>' + '<td>' + currency + '</td></tr>';
+                    document.getElementById('allplu').value += obj[0] + ',';
+                    document.getElementById('quant').value += quantity + ',';
+                    total += price;
+                    document.getElementById('total').innerHTML = currencyFormat(total);
+
+                    document.getElementById('newEntry').value = '';
+                    return false;
+                } else {
+                    document.getElementById('newEntry').value = '';
+                }
+            }
+        }
+
+
+        function currencyFormat(number) {
+            var currency = parseFloat(number);
+            currency = currency.toFixed(2);
+            currency = currency + ' zł';
+            return currency;
+        }
+
+        function showInput(checkbox) {
+            if (checkbox.checked) {
+                var input = document.createElement("input");
+                input.type = "text";
+                input.name = 'ksk_num';
+                var div = document.createElement("div");
+                div.id = checkbox.name;
+                div.innerHTML = 'Numer karty: ';
+                div.appendChild(input);
+                document.getElementById("ksk_num").appendChild(div);
+            } else {
+                document.getElementById(checkbox.name).remove();
+            }
+        }
+
+    </script>
+<div>{{ products_json }}</div>
+</body>
+</html>

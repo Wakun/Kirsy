@@ -1,0 +1,17 @@
+{% extends 'panel/baseseller.html' %}
+
+{% block title %}Podsumowanie transakcji{% endblock %}
+
+{% block content %}
+<div>{{ transaction.id }}</div>
+<div>{{ transaction.transaction_date }}</div>
+<div>{{ transaction.plu_list }}</div>
+<div>{{ total }}</div>
+
+<form method="post" class="post-form">
+    {% csrf_token %}
+    <p><label for="id_is_paid">Zapłacone?</label>
+    <input type="checkbox" name="is_paid" id="id_is_paid"></p>
+    <button type="submit" class="save btn btn-default">Zapisz</button>
+</form>
+{% endblock %}

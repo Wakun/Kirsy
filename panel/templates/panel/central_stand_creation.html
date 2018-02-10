@@ -1,0 +1,13 @@
+{% extends 'panel/basecentral.html' %}
+
+{% block title %}Tworzenie stoiska{% endblock %}
+
+{% block content %}
+  <h2>Utwórz stoisko</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form1.as_p }}
+      {{ form2.as_p }}
+    <button type="submit">Utwórz</button>
+  </form>
+{% endblock %}

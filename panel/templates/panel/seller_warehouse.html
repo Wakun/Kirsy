@@ -1,0 +1,49 @@
+{% extends 'panel/baseseller.html' %}
+
+{% block title %}Magazyn{% endblock %}
+{% block content %}
+<script>
+    function warehouseFunction() {
+        var input, table, filter, tr, td, i;
+        input = document.getElementById('warehouseInput');
+        filter = input.value;
+        table = document.getElementById('warehouseTable');
+        tr = table.getElementsByTagName('tr');
+
+        for (i = 0 ; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName('td')[0];
+            if (td) {
+                if (td.innerHTML.indexOf(filter) > -1) {
+                    tr[i].style.display = '';
+                } else {
+                    tr[i].style.display = 'none';
+                }
+            }
+        }
+    }
+</script>
+
+<title>Magazyn</title>
+
+<h1>Magazyn</h1>
+
+<body>
+    <input type="text" id="warehouseInput" onkeyup="warehouseFunction()" placeholder="Wpisz nr. PLU...">
+    <table id="warehouseTable">
+        <tr>
+            <th>Nr. PLU</th>
+            <th>Nazwa</th>
+            <th>Stok</th>
+        </tr>
+        {% for field in stocks %}
+            <tr>
+                <td>{{ field.plu_num }}</td>
+                <td>{{ field.art_name }}</td>
+                <td>{{ field.stock }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+</body>
+
+{% endblock %}

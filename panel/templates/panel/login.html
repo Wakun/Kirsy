@@ -1,0 +1,12 @@
+{% block content %}
+    {% if user.is_authenticated %}
+        <p>Aktualnie jesteś zalogowany, przejdź do <a href="{% url 'panel:index' %}">strony głównej</a></p>
+    {% else %}
+        <h2>Login</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Login</button>
+        </form>
+    {% endif %}
+{% endblock %}

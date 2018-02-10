@@ -1,0 +1,20 @@
+{% extends 'panel/basecentral.html' %}
+
+{% block title %}Stoiska{% endblock %}
+{% block content %}
+    <body>
+        <table>
+            <tr>
+                <th>Nazwa stoiska</th>
+                <th>Adres</th>
+            </tr>
+            {% for stand in stands %}
+                <tr>
+                    <td>{{ stand.stand_name }}</td>
+                    <td>{{ stand.adress }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </body>
+    <a href="tworzeniestoiska" >Utwórz stoisko</a>
+{% endblock %}

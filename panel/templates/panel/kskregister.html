@@ -1,0 +1,13 @@
+{% extends 'panel/baseseller.html' %}
+
+{% block title %}Karta stałego klienta{% endblock %}
+{% block content %}
+
+
+<h1>Karta stałego klienta</h1>
+    <form method="POST" class="post-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="save btn btn-default">Zapisz</button>
+    </form>
+{% endblock %}
