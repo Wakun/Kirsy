@@ -304,7 +304,7 @@ class CentralSalesTable(tables.Table):
     zloty_margin = tables.Column(verbose_name='Marża PLN')
     temporary_quantity = tables.Column(verbose_name='Ilość')
     sale = tables.Column(verbose_name='Obrót')
-    owner = tables.Column(verbose_name='Stoisko')
+    owner = tables.Column(verbose_name='Stoisko', attrs={'td': {'id': 'owner'}})
 
 
 
@@ -333,9 +333,10 @@ def sales(request):
             most_recent_stock = Product.objects.get(plu_num=prod.plu_num, owner=prod.owner).stock
             prod.stock = most_recent_stock
 
+
         transaction_json = serializers.serialize('python', list(all_products), fields=(
             'plu_num', 'art_name', 'sales_price_brutto', 'stock', 'temporary_quantity', 'margin', 'zloty_margin',
-            'owner'))
+            'owner_name'))
         data = [d['fields'] for d in transaction_json]
 
         new_data = []
@@ -343,7 +344,7 @@ def sales(request):
             item = dict(item)
             new_data.append(item)
 
-        keyfunc = itemgetter('plu_num', 'sales_price_brutto', 'art_name', 'margin', 'owner')
+        keyfunc = itemgetter('plu_num', 'sales_price_brutto', 'art_name', 'margin', 'owner_name')
 
         groups = ((plu, price, art_name, margin, owner, list(g))
                   for (plu, price, art_name, margin, owner), g in it.groupby(sorted(new_data, key=keyfunc), keyfunc))
@@ -380,15 +381,16 @@ def sales(request):
            prod.stock = most_recent_stock
 
         transaction_json = serializers.serialize('python', list(all_products), fields=(
-        'plu_num', 'art_name', 'sales_price_brutto', 'stock', 'temporary_quantity', 'margin', 'zloty_margin', 'owner'))
+        'plu_num', 'art_name', 'sales_price_brutto', 'stock', 'temporary_quantity', 'margin', 'zloty_margin', 'owner_name'))
         data = [d['fields'] for d in transaction_json]
+
 
         new_data = []
         for item in data:
             item = dict(item)
             new_data.append(item)
 
-        keyfunc = itemgetter('plu_num', 'sales_price_brutto', 'art_name', 'margin', 'owner')
+        keyfunc = itemgetter('plu_num', 'sales_price_brutto', 'art_name', 'margin', 'owner_name')
 
         groups = ((plu, price, art_name, margin, owner, list(g))
                   for (plu, price, art_name, margin, owner), g in it.groupby(sorted(new_data, key=keyfunc), keyfunc))

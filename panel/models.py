@@ -74,6 +74,7 @@ class Product(models.Model):
     history = HistoricalRecords()
 
     owner = models.ForeignKey(Group)
+    owner_name = models.CharField('Nazwa grupy: ', max_length=255)
 
     price_raw_variance = models.FloatField(null=True)
     price_percentage_variance = models.FloatField(default=0.0)
@@ -84,6 +85,7 @@ class Product(models.Model):
         verbose_name = 'Produkt'
         verbose_name_plural = 'Produkty'
 
+
     def save(self, *args, **kwargs):
         self.sales_price_netto = self.get_sales_price_netto()
         self.purchase_price_netto = self.get_purchase_price_netto()
@@ -93,9 +95,12 @@ class Product(models.Model):
         self.stock_cs_pln = self.get_stock_cs_pln_display()
         self.stock_cz_pln = self.get_stock_cz_pln_display()
         self.decote = self.get_decote_display()
+        self.owner_name = self.owner.name
 
 
         super(Product, self).save(*args, **kwargs)
+
+
 
 
     """def update_price(self, price):
