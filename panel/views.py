@@ -221,6 +221,7 @@ def sale_seller(request):
              for plu, price, art_name, g in groups]
 
         table = SellerSalesTable(table_data)
+        tables.RequestConfig(request).configure(table)
         date_form = SalesDateForm
 
 
@@ -264,6 +265,7 @@ def sale_seller(request):
              for plu, price, art_name, g in groups]
 
         table = SellerSalesTable(table_data)
+        tables.RequestConfig(request).configure(table)
 
         date_form = SalesDateForm
 
@@ -354,6 +356,7 @@ def sales(request):
                       plu, price, art_name, margin, owner, g in groups]
 
         table = CentralSalesTable(table_data)
+        tables.RequestConfig(request).configure(table)
         date_form = SalesDateForm
 
         return render(request, 'panel/central_sales.html', {'sales': table, 'date_form': date_form, 'date': date})
@@ -395,7 +398,9 @@ def sales(request):
                        'owner': owner, 'margin': margin,
                        'zloty_margin': (sum(x['temporary_quantity'] for x in g) * price) * (margin / 100)} for plu, price, art_name, margin, owner, g in groups]
 
+
         table = CentralSalesTable(table_data)
+        tables.RequestConfig(request).configure(table)
         date_form = SalesDateForm
 
         return render(request, 'panel/central_sales.html', {'sales': table, 'date_form': date_form, 'date': date_now})
