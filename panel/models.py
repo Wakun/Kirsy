@@ -6,6 +6,7 @@ import json
 
 
 
+
 decote_dict = {'styczeń': 1, 'luty': 2, 'marzec': 3, 'kwiecień': 4, 'maj': 5, 'czerwiec': 6, 'lipiec': 7,
                'sierpień': 8, 'wrzesień': 9, 'październik': 10, 'listopad': 11, 'grudzień': 12}
 
@@ -73,7 +74,7 @@ class Product(models.Model):
     temporary_quantity = models.IntegerField('Tymczasowa ilość', default=0)
     history = HistoricalRecords()
 
-    owner = models.ForeignKey(Group)
+    owner = models.ForeignKey(Group, on_delete=models.CASCADE)
     owner_name = models.CharField('Nazwa grupy: ', max_length=255)
 
     price_raw_variance = models.FloatField(null=True)
@@ -244,7 +245,7 @@ class Product(models.Model):
 
 
 class PriceHistory(models.Model):
-    product = models.ForeignKey(Product, related_name='price_history')
+    product = models.ForeignKey(Product, related_name='price_history', on_delete=models.CASCADE)
     price = models.FloatField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -337,7 +338,7 @@ class Transaction(models.Model):
     is_ksk = models.BooleanField(default=False)
     ksk_num = models.IntegerField(null=True)
     is_paid = models.BooleanField(default=False)
-    owner = models.ForeignKey(User, editable=False) # konto które zrobiło transakcję
+    owner = models.ForeignKey(User, editable=False, on_delete=models.CASCADE) # konto które zrobiło transakcję
 
 
     def set_plu_list(self, x):
