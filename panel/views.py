@@ -16,6 +16,7 @@ from django.contrib.auth.models import Group
 
 from .forms import KskForm, StandForm, StandCreationForm, TransactionForm, SalesDateForm
 from .models import Product, Ksk, Transaction, Stand
+from .tables import CentralSalesTable, SellerSalesTable
 
 @login_required(login_url='/login')
 def index(request):
@@ -169,13 +170,7 @@ def warehouse(request):
     return render(request, 'panel/seller_warehouse.html', {'stocks': stocks})
 
 
-class SellerSalesTable(tables.Table):
-    plu_num = tables.Column(verbose_name='PLU')
-    art_name = tables.Column(verbose_name='Nazwa artykułu')
-    sales_price_brutto = tables.Column(verbose_name='Cena')
-    stock = tables.Column(verbose_name='Stok')
-    temporary_quantity = tables.Column(verbose_name='Ilość')
-    sale = tables.Column(verbose_name='Obrót')
+
 
 @login_required(login_url='/login')
 def sale_seller(request):
@@ -295,16 +290,7 @@ def central_panel(request):
 
     return HttpResponse(template.render(context, request))
 
-class CentralSalesTable(tables.Table):
-    plu_num = tables.Column(verbose_name='PLU')
-    art_name = tables.Column(verbose_name='Nazwa artykułu')
-    sales_price_brutto = tables.Column(verbose_name='Cena')
-    stock = tables.Column(verbose_name='Stok')
-    margin = tables.Column(verbose_name='Marża')
-    zloty_margin = tables.Column(verbose_name='Marża PLN')
-    temporary_quantity = tables.Column(verbose_name='Ilość')
-    sale = tables.Column(verbose_name='Obrót')
-    owner = tables.Column(verbose_name='Stoisko', attrs={'td': {'id': 'owner'}})
+
 
 
 

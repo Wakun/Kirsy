@@ -86,6 +86,8 @@ class Product(models.Model):
         verbose_name = 'Produkt'
         verbose_name_plural = 'Produkty'
 
+    def __str__(self):
+        return str(self.plu_num) + ' ' + self.art_name
 
     def save(self, *args, **kwargs):
         self.sales_price_netto = self.get_sales_price_netto()
