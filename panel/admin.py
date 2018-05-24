@@ -12,11 +12,12 @@ class ProductAdmin(SimpleHistoryAdmin):
         ('Stan', {'fields': ['stock']}),
         ('Data wejścia', {'fields': ['entry_date']}),
         ('Grupa', {'fields': ['owner']}),
+        ('Status', {'fields': ['product_status']}),
     ]
 
     history_list_display = ['sales_price_netto', 'sales_price_brutto', 'stock', 'quantity_sold', 'temporary_quantity']
 
-    list_display = ('plu_num', 'art_name', 'purchase_price_netto', 'purchase_price_brutto', 'sales_price_netto',
+    list_display = ('plu_num', 'art_name', 'product_status', 'purchase_price_netto', 'purchase_price_brutto', 'sales_price_netto',
                     'sales_price_brutto', 'margin', 'zloty_margin', 'last_price', 'vat_value', 'vat_difference',
                     'stock', 'stock_cz_pln', 'stock_cs_pln', 'decote', 'entry_date', 'owner', 'quantity_sold', 'temporary_quantity')
 

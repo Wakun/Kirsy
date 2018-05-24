@@ -52,6 +52,11 @@ class Product(models.Model):
         ('0', 0),
     )
 
+    STATUS_CHOICES = (
+        ('AC', 'AC'),
+        ('NC', 'NC'),
+    )
+
     art_name = models.CharField('Nazwa artykułu: ', max_length=100)
     plu_num = models.IntegerField('Nr. PLU', default=0)
 
@@ -69,6 +74,8 @@ class Product(models.Model):
     stock_cs_pln = models.FloatField('Stok CS PLN: ', null=True)
     stock_cz_pln = models.FloatField('Stok CZ PLN: ', null=True)
     decote = models.IntegerField('Dekot: ', default=0)
+
+    product_status = models.CharField(choices=STATUS_CHOICES, default='AC', max_length=2)
 
     quantity_sold = models.IntegerField('Sprzedana ilość', default=0)
     temporary_quantity = models.IntegerField('Tymczasowa ilość', default=0)

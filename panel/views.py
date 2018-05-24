@@ -76,7 +76,7 @@ def cash_register(request):
                 newtrans.is_ksk = True
                 newtrans.ksk_num = card_number.card_number
             except Ksk.DoesNotExist:
-                raise Http404('chujowa karta')
+                raise Http404('Brak karty o takim numerze')
 
         newtrans.save()
         trans_id = newtrans.id
