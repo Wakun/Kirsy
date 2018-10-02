@@ -5,8 +5,6 @@ from simple_history.models import HistoricalRecords
 import json
 
 
-
-
 decote_dict = {'styczeń': 1, 'luty': 2, 'marzec': 3, 'kwiecień': 4, 'maj': 5, 'czerwiec': 6, 'lipiec': 7,
                'sierpień': 8, 'wrzesień': 9, 'październik': 10, 'listopad': 11, 'grudzień': 12}
 
@@ -107,33 +105,7 @@ class Product(models.Model):
         self.decote = self.get_decote_display()
         self.owner_name = self.owner.name
 
-
         super(Product, self).save(*args, **kwargs)
-
-
-
-
-    """def update_price(self, price):
-        if price != self.sales_price_brutto:
-            self.last_price = self.sales_price_brutto
-            self.sales_price_brutto = price
-            if self.sales_price_brutto and self.last_price:
-                self.price_raw_variance = self.sales_price_brutto - self.last_price
-                if self.sales_price_brutto > 0 and self.last_price > 0:
-                    if self.last_price < self.sales_price_brutto:
-                        self.price_percentage_variance = self.last_price / self.sales_price_brutto
-                        self.price_percentage_variance = 1.0 - self.price_percentage_variance
-                    elif self.last_price > self.sales_price_brutto:
-                        self.price_percentage_variance = self.sales_price_brutto / self.last_price
-                        self.price_percentage_variance = self.price_percentage_variance - 1.0
-                else:
-                    self.price_percentage_variance = 0.0
-            else:
-                self.price_raw_variance = None
-                self.price_percentage_variance = 0.0
-            self.price_changes = self.price_changes.count()
-            self.save()
-            PriceHistory(product=self, price=price).save()"""
 
     def get_current_price_display(self):
         return format_currency(self.sales_price_brutto)
@@ -195,8 +167,6 @@ class Product(models.Model):
         value = round(value, 2)
         return value
 
-
-
     def get_purchase_price_netto(self):
         value = 0.0
         if self.vat_display in vat_dict:
@@ -207,8 +177,6 @@ class Product(models.Model):
         value = round(value, 2)
         return value
 
-
-
     def get_vat_difference(self):
         purchase_vat = self.purchase_price_brutto - self.purchase_price_netto
         sales_vat = self.sales_price_brutto - self.sales_price_netto
@@ -216,8 +184,6 @@ class Product(models.Model):
 
         vat_diff = round(vat_diff, 2)
         return vat_diff
-
-
 
     def get_margin_display(self):
         x = self.sales_price_brutto - self.purchase_price_brutto
@@ -227,8 +193,6 @@ class Product(models.Model):
         percentage_margin = round(percentage_margin, 2)
         return percentage_margin
 
-
-
     def get_zloty_margin_display(self):
         x = self.sales_price_brutto - self.purchase_price_brutto
         pln_margin = x - float(self.vat_difference)
@@ -237,15 +201,10 @@ class Product(models.Model):
 
         return pln_margin
 
-
-
     def get_stock_cs_pln_display(self):
         stock_cs = self.sales_price_brutto * self.stock
 
         return stock_cs
-
-
-
 
     def get_stock_cz_pln_display(self):
         stock_cz = self.purchase_price_brutto * self.stock
@@ -336,25 +295,21 @@ class Ksk(models.Model):
 
     get_discount_display.allow_tags = True
     get_discount_display.short_description = 'Rabat: '
-    discount_value= property(get_discount_display)
+    discount_value = property(get_discount_display)
 
 
 class Transaction(models.Model):
 
-    plu_list = models.CharField(max_length=255)  #  {plu : ilość, plu : ilość}
+    plu_list = models.CharField(max_length=255)  # {plu : ilość, plu : ilość}
     total = models.FloatField(null=True)
     transaction_date = models.DateTimeField(auto_now_add=True)
     is_ksk = models.BooleanField(default=False)
     ksk_num = models.IntegerField(null=True)
     is_paid = models.BooleanField(default=False)
-    owner = models.ForeignKey(User, editable=False, on_delete=models.CASCADE) # konto które zrobiło transakcję
-
+    owner = models.ForeignKey(User, editable=False, on_delete=models.CASCADE)  # konto które zrobiło transakcję
 
     def set_plu_list(self, x):
         self.plu_list = json.dumps(x)
 
     def get_plu_list(self):
         return json.loads(self.plu_list)
-
-
-# model obrotów

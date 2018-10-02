@@ -17,15 +17,14 @@ class ProductAdmin(SimpleHistoryAdmin):
 
     history_list_display = ['sales_price_netto', 'sales_price_brutto', 'stock', 'quantity_sold', 'temporary_quantity']
 
-    list_display = ('plu_num', 'art_name', 'product_status', 'purchase_price_netto', 'purchase_price_brutto', 'sales_price_netto',
-                    'sales_price_brutto', 'margin', 'zloty_margin', 'last_price', 'vat_value', 'vat_difference',
-                    'stock', 'stock_cz_pln', 'stock_cs_pln', 'decote', 'entry_date', 'owner', 'quantity_sold', 'temporary_quantity')
+    list_display = ('plu_num', 'art_name', 'product_status', 'purchase_price_netto', 'purchase_price_brutto',
+                    'sales_price_netto', 'sales_price_brutto', 'margin', 'zloty_margin', 'last_price',
+                    'vat_value', 'vat_difference', 'stock', 'stock_cz_pln', 'stock_cs_pln', 'decote',
+                    'entry_date', 'owner', 'quantity_sold', 'temporary_quantity')
 
     list_filter = ['owner']
 
     search_fields = ['art_name', 'plu_num']
-
-
 
 
 class StandAdmin(admin.ModelAdmin):
@@ -47,7 +46,8 @@ class KskAdmin(admin.ModelAdmin):
         ('Dane kontaktowe', {'fields': ['phone_number', 'email']})
     ]
 
-    list_display = ('card_number', 'full_name', 'adress', 'city', 'postal', 'email', 'phone_number', 'purchase_value', 'points')
+    list_display = ('card_number', 'full_name', 'adress', 'city', 'postal', 'email',
+                    'phone_number', 'purchase_value', 'points')
 
     list_filter = ['card_number', 'city', 'purchase_value']
 
@@ -58,11 +58,7 @@ class TransactionAdmin(admin.ModelAdmin):
     list_display = ('id', 'plu_list', 'transaction_date', 'is_ksk', 'ksk_num', 'is_paid', 'total', 'owner')
 
 
-
-
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Stand, StandAdmin)
 admin.site.register(Ksk, KskAdmin)
 admin.site.register(Transaction, TransactionAdmin)
-
-

@@ -1,5 +1,6 @@
 import django_tables2 as tables
 
+
 class CentralSalesTable(tables.Table):
     plu_num = tables.Column(verbose_name='PLU')
     art_name = tables.Column(verbose_name='Nazwa artykułu')

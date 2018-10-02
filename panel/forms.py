@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from .models import Product, Ksk, Stand, Transaction
+from .models import Product, Ksk, Stand
 
 
 class ProductForm(forms.ModelForm):
@@ -40,10 +40,7 @@ class TransactionForm(forms.Form):
 
     is_paid = forms.BooleanField(label='is_paid')
 
+
 class SalesDateForm(forms.Form):
 
-
     date = DateField(widget=forms.SelectDateWidget(), label='Wybierz datę', initial=timezone.now())
-
-
-
