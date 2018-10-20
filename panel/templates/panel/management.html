@@ -1,0 +1,12 @@
+{% extends 'panel/basecentral.html' %}
+{% load static %}
+
+{% block title %}Zarządzanie{% endblock %}
+
+{% block content %}
+
+    <a href="{% url 'panel:Zmiana cen' %}" class="button">Zmiana cen i promocja</a>
+    <a href="{% url 'panel:Zamówienia' %}" class="button">Zamówienia</a>
+
+
+{% endblock %}

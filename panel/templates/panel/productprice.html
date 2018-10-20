@@ -1,0 +1,26 @@
+{% extends 'panel/basecentral.html' %}
+{% load static %}
+
+{% block title %}Zmiana ceny i promocji{% endblock %}
+
+{% block content %}
+
+   <a href="{% url 'panel:Zmiana cen' %}" class="button">Wstecz</a>
+
+    <p>Nazwa: {{ product.art_name }}</p>
+    <p>PLU: {{ product.plu_num }}</p>
+    <p>CSN: {{ product.sales_price_netto }}</p>
+    <p>CSB: {{ product.sales_price_brutto }}</p>
+    <p>CZB: {{ product.purchase_price_brutto }}</p>
+    <p>Marża: {{ product.margin }}</p>
+    <p>Marża %: {{ product.zloty_margin }}</p>
+    <p>VAT: {{ product.vat_value }}</p>
+
+    <form method="POST" class="post-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="save btn btn-default">Zapisz</button>
+    </form>
+
+
+{% endblock %}

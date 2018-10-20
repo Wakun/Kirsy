@@ -1,22 +1,27 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse, Http404
-from django.template import loader
-from django.utils import timezone
 # from django.db.models import Sum
 import datetime
+import itertools as it
 import json
 from operator import itemgetter
-import itertools as it
-import django_tables2 as tables
-from django.core.serializers.json import DjangoJSONEncoder
-from django.core import serializers
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login, authenticate
-# from django.contrib.auth.models import Group
 
-from .forms import KskForm, StandForm, StandCreationForm, TransactionForm, SalesDateForm
+import django_tables2 as tables
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.decorators import login_required
+from django.core import serializers
+from django.core.serializers.json import DjangoJSONEncoder
+from django.http import HttpResponse, Http404
+from django.shortcuts import render, redirect, get_object_or_404
+from django.template import loader
+from django.utils import timezone
+from django_tables2 import A
+
+from .forms import KskForm, StandForm, StandCreationForm, TransactionForm, SalesDateForm, \
+    PriceChangesChoice, PriceAndPromoForm
 from .models import Product, Ksk, Transaction, Stand
 from .tables import CentralSalesTable, SellerSalesTable
+
+
+# from django.contrib.auth.models import Group
 
 
 @login_required(login_url='/login')
@@ -376,22 +381,104 @@ def sales(request):
 
         return render(request, 'panel/central_sales.html', {'sales': table, 'date_form': date_form, 'date': date_now})
 
+class StockTable(tables.Table):
+
+    plu_num = tables.Column()
+    art_name = tables.Column()
+    purchase_price_netto = tables.Column()
+    purchase_price_brutto = tables.Column()
+    sales_price_netto = tables.Column()
+    sales_price_brutto = tables.Column()
+    vat_value = tables.Column()
+    vat_difference = tables.Column()
+    margin = tables.Column()
+    zloty_margin = tables.Column()
+    stock = tables.Column()
+    stock_cz_pln = tables.Column()
+    stock_cs_pln = tables.Column()
+    owner_name = tables.Column()
+    view_link = tables.LinkColumn('panel:Widok produktu', args=[A('pk')], text='Szczegóły', empty_values = ())
+
 
 @login_required(login_url='/login')
 def stock(request):
-    try:
-        stocks = Product.objects.only('plu_num', 'art_name', 'purchase_price_netto', 'purchase_price_brutto',
-                                       'sales_price_netto', 'sales_price_brutto', 'vat_value', 'vat_difference',
-                                       'margin', 'zloty_margin', 'stock', 'stock_cz_pln', 'stock_cs_pln')
-    except Product.DoesNotExist:
-        raise Http404('Products can\'t be found')
 
-    return render(request, 'panel/central_stock.html', {'stocks': stocks})
+    try:
+        products = Product.objects.all()
+    except Product.DoesNotExist:
+        raise Http404('Brak produktów')
+
+    table = StockTable(products)
+    tables.RequestConfig(request).configure(table)
+
+    return render(request, 'panel/central_stock.html', {'stocks': table})
+
+@login_required(login_url='\login')
+def product_view(request, pk):
+
+     product = get_object_or_404(Product, pk=pk)
+
+     return render(request, 'panel/product_view.html', {'product': product})
 
 
 @login_required(login_url='/login')
 def management(request):
-    return HttpResponse('Zarządzanie')
+
+    return render(request, 'panel/management.html')
+
+
+@login_required(login_url='/login')
+def price_changes(request):
+
+    if request.method == 'POST':
+        form = PriceChangesChoice(request.POST)
+
+        if form.is_valid():
+            plu_num = form.cleaned_data['plu_num']
+            owner = form.cleaned_data['owner']
+
+            try:
+                product = Product.objects.get(plu_num=plu_num, owner=owner)
+            except Product.DoesNotExist:
+                raise Http404('Nie ma takiego produktu.')
+
+            prod_id = product.id
+
+            return redirect('panel:Zmiana ceny', prod_id)
+
+    else:
+        form = PriceChangesChoice()
+
+    return render(request, 'panel/price_changes.html', {'form': form})
+
+
+@login_required(login_url='/login')
+def priceandpromo(request, id):
+
+    form = PriceAndPromoForm(request.POST)
+
+    product = Product.objects.get(id=id)
+
+    if request.method == 'POST':
+
+        if form.is_valid():
+            new_csb = form['sales_price_brutto'].value()
+            product.sales_price_brutto = float(new_csb)
+            product.save()
+            return redirect('panel:Zmiana ceny', product.id)
+
+    else:
+        form = PriceAndPromoForm()
+
+    return render(request, 'panel/productprice.html', {'form': form, 'product': product})
+
+
+
+
+@login_required(login_url='/login')
+def orders(request):
+
+    return HttpResponse('Zamówienia')
 
 
 @login_required(login_url='/login')

@@ -1,69 +1,10 @@
 {% extends 'panel/basecentral.html' %}
+{% load render_table from django_tables2 %}
+{% load static %}
 
 {% block title %}Stok{% endblock %}
 {% block content %}
-<script>
-    function stocksFunction() {
-        var input, table, filter, tr, td, i;
-        input = document.getElementById('stocksInput');
-        filter = input.value;
-        table = document.getElementById('stocksTable');
-        tr = table.getElementsByTagName('tr');
 
-        for (i = 0 ; i < tr.length; i++) {
-            td = tr[i].getElementsByTagName('td')[0];
-            if (td) {
-                if (td.innerHTML.indexOf(filter) > -1) {
-                    tr[i].style.display = '';
-                } else {
-                    tr[i].style.display = 'none';
-                }
-            }
-        }
-    }
-</script>
+     {% render_table stocks %}
 
-<title>Magazyn</title>
-
-<h1>Magazyn</h1>
-
-<body>
-    <input type="text" id="stocksInput" onkeyup="stocksFunction()" placeholder="Wpisz nr. PLU...">
-    <table id="stocksTable">
-        <tr>
-            <th>Nr. PLU</th>
-            <th>Nazwa</th>
-            <th>CZN</th>
-            <th>CZB</th>
-            <th>CSN</th>
-            <th>CSB</th>
-            <th>VAT</th>
-            <th>Różnica VAT</th>
-            <th>Marża %</th>
-            <th>Marża PLN</th>
-            <th>Stok</th>
-            <th>Stok CZ PLN</th>
-            <th>Stok CS PLN</th>
-        </tr>
-        {% for field in stocks %}
-            <tr>
-                <td>{{ field.plu_num }}</td>
-                <td>{{ field.art_name }}</td>
-                <td>{{ field.purchase_price_netto }}</td>
-                <td>{{ field.purchase_price_brutto }}</td>
-                <td>{{ field.sales_price_netto }}</td>
-                <td>{{ field.sales_price_brutto }}</td>
-                <td>{{ field.vat_value }}</td>
-                <td>{{ field.vat_difference }}</td>
-                <td>{{ field.margin }}</td>
-                <td>{{ field.zloty_margin }}</td>
-                <td>{{ field.stock }}</td>
-                <td>{{ field.stock_cz_pln }}</td>
-                <td>{{ field.stock_cs_pln }}</td>
-            </tr>
-        {% endfor %}
-    </table>
-
-
-</body>
 {% endblock %}
