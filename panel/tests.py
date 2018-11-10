@@ -13,6 +13,14 @@ class ProductModelTests(TestCase):
         test_product = Product(art_name='test', plu_num=123)
         self.assertEqual(str(test_product), str(test_product.plu_num) + ' ' + test_product.art_name)
 
+    def test_get_stock_cs_pln_display(self):
+        test_product = Product(art_name='test', plu_num=123, sales_price_brutto=100, stock=10)
+        self.assertEqual(test_product.get_stock_cs_pln_display(), 1000)
+
+    def test_get_stock_cz_pln_display(self):
+        test_product = Product(art_name='test', plu_num=123, purchase_price_brutto=100, stock=10)
+        self.assertEqual(test_product.get_stock_cz_pln_display(), 1000)
+
 
 class KskModelTests(TestCase):
     pass

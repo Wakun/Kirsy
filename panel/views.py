@@ -16,7 +16,7 @@ from django.utils import timezone
 from django_tables2 import A
 
 from .forms import KskForm, StandForm, StandCreationForm, TransactionForm, SalesDateForm, \
-    PriceChangesChoice, PriceAndPromoForm
+    PriceChangesChoice, PriceAndPromoForm, KskCentralForm
 from .models import Product, Ksk, Transaction, Stand
 from .tables import CentralSalesTable, SellerSalesTable
 
@@ -147,8 +147,19 @@ def transaction_summary(request, id):
             obj = Product.objects.get(owner=group, plu_num=prod)
             total += obj.sales_price_brutto * allplu[prod]
 
+        if transaction.is_ksk == True:
+            ksk = Ksk.objects.get(card_number=transaction.ksk_num)
+            if ksk.discount != 0:
+                ksk_discount_value = ksk.discount / 100
+                total = total - total * ksk_discount_value
+                transaction.discount_value = total * ksk_discount_value
+                transaction.is_discount = True
+
+
         transaction.total = total
         transaction.save()
+
+        # wartość rabatów z całego dnia na obrotach centralnych i sprzedawcy 
 
         transactionform = TransactionForm
 
@@ -381,6 +392,7 @@ def sales(request):
 
         return render(request, 'panel/central_sales.html', {'sales': table, 'date_form': date_form, 'date': date_now})
 
+
 class StockTable(tables.Table):
 
     plu_num = tables.Column()
@@ -511,11 +523,58 @@ def stand_creation(request):
     return render(request, 'panel/central_stand_creation.html', {'form1': form1, 'form2': form2})
 
 
+class KskViewTable(tables.Table):
+
+    card_number = tables.Column()
+    name = tables.Column()
+    surname = tables.Column()
+    city = tables.Column()
+    email = tables.Column()
+    phone_numer = tables.Column()
+    purchase_value = tables.Column()
+    discount = tables.Column()
+    points = tables.Column()
+    view_link = tables.LinkColumn('panel:kskdetails', args=[A('pk')], text='Szczegóły/Edycja', empty_values = ())
+    
+
+@login_required(login_url='/login')
+def ksk_view(request):
+
+    try:
+        ksk = Ksk.objects.all()
+    except Ksk.DoesNotExist:
+        raise Http404('Nie ma kart stałego klienta')
+
+    table = KskViewTable(ksk)
+    tables.RequestConfig(request).configure(table)
+
+    return render(request, 'panel/ksk_view.html', {'ksk': table})
+
+
+@login_required(login_url='/login')
+def ksk_view_details(request, pk):
+
+    ksk = get_object_or_404(Ksk, pk=pk)
+
+    if request.method == 'POST':
+        form = KskCentralForm(request.POST, instance=ksk)
+        if form.is_valid():
+            ksk = form.save()
+            ksk.save()
+            return redirect('panel:Kartysk')
+    else:
+        form = KskCentralForm(instance=ksk)
+
+    return render(request, 'panel/ksk_view_details.html', {'form': form})
+
+
 @login_required(login_url='/login')
 def sales_records(request):
-    return HttpResponse('Wyniki')
 
+    return HttpResponse('Wyniki')
+    
 
 @login_required(login_url='/login')
 def contact(request):
+
     return HttpResponse('Kontakt')

@@ -305,6 +305,8 @@ class Transaction(models.Model):
     transaction_date = models.DateTimeField(auto_now_add=True)
     is_ksk = models.BooleanField(default=False)
     ksk_num = models.IntegerField(null=True)
+    is_discount = models.BooleanField(default=False)
+    discount_value = models.IntegerField(default=0)
     is_paid = models.BooleanField(default=False)
     owner = models.ForeignKey(User, editable=False, on_delete=models.CASCADE)  # konto które zrobiło transakcję
 

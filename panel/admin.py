@@ -55,7 +55,7 @@ class KskAdmin(admin.ModelAdmin):
 
 
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'plu_list', 'transaction_date', 'is_ksk', 'ksk_num', 'is_paid', 'total', 'owner')
+    list_display = ('id', 'plu_list', 'transaction_date', 'is_ksk', 'ksk_num', 'is_paid', 'is_discount', 'discount_value', 'total', 'owner')
 
 
 admin.site.register(Product, ProductAdmin)

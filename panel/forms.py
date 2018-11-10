@@ -6,6 +6,7 @@ from django.utils import timezone
 
 from .models import Product, Ksk, Stand
 
+
 class CustomModelChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return "%s" % obj.owner_name
@@ -25,6 +26,12 @@ class KskForm(forms.ModelForm):
         fields = ('card_number', 'name', 'surname', 'street', 'apartement_number', 'building_number', 'city',
                   'postal_code', 'email', 'phone_number')
 
+class KskCentralForm(forms.ModelForm):
+
+    class Meta:
+        model = Ksk
+        fields =  ('card_number', 'name', 'surname', 'street', 'apartement_number', 'building_number', 'city',
+                  'postal_code', 'email', 'phone_number', 'discount', 'points')
 
 class StandForm(forms.ModelForm):
 
@@ -54,6 +61,7 @@ class PriceChangesChoice(forms.Form):
 
     plu_num = forms.IntegerField(label='PLU')
     owner = forms.ModelChoiceField(queryset=Group.objects.all())
+
 
 class PriceAndPromoForm(forms.ModelForm):
 
