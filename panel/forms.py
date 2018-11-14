@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User, Group
 from django.utils import timezone
 
-from .models import Product, Ksk, Stand
+from .models import Product, Ksk, Stand, Order
 
 
 class CustomModelChoiceField(forms.ModelChoiceField):
@@ -68,3 +68,24 @@ class PriceAndPromoForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = ('sales_price_brutto',)
+
+
+class StandChoice(forms.Form):
+
+    owner = forms.ModelChoiceField(queryset=Group.objects.all())
+
+
+class PluNumberChoice(forms.Form):
+
+    plu_num = forms.IntegerField(label='PLU')
+
+
+class OrderForm(forms.Form):
+
+    quantity = forms.IntegerField(label='Ilość')
+    purchase_price = forms.FloatField(label='Cena zakupu')
+
+
+
+
+

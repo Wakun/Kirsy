@@ -315,3 +315,12 @@ class Transaction(models.Model):
 
     def get_plu_list(self):
         return json.loads(self.plu_list)
+
+
+class Order(models.Model):
+
+    plu_num = models.IntegerField(null=True)
+    entry_date = models.DateField(auto_now_add=True)
+    quantity = models.IntegerField(null=True)
+    purchase_price = models.FloatField(null=True)
+    owner = models.ForeignKey(Group, on_delete=models.CASCADE)

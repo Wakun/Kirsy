@@ -6,6 +6,7 @@ from operator import itemgetter
 
 import django_tables2 as tables
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
@@ -16,8 +17,8 @@ from django.utils import timezone
 from django_tables2 import A
 
 from .forms import KskForm, StandForm, StandCreationForm, TransactionForm, SalesDateForm, \
-    PriceChangesChoice, PriceAndPromoForm, KskCentralForm
-from .models import Product, Ksk, Transaction, Stand
+    PriceChangesChoice, PriceAndPromoForm, KskCentralForm, StandChoice, PluNumberChoice, OrderForm
+from .models import Product, Ksk, Transaction, Stand, Order
 from .tables import CentralSalesTable, SellerSalesTable
 
 
@@ -143,23 +144,26 @@ def transaction_summary(request, id):
         group = request.user.groups.all()[0]
 
         total = 0.0
+        
         for prod in allplu:
             obj = Product.objects.get(owner=group, plu_num=prod)
             total += obj.sales_price_brutto * allplu[prod]
+
+        total_for_discount_value = total
 
         if transaction.is_ksk == True:
             ksk = Ksk.objects.get(card_number=transaction.ksk_num)
             if ksk.discount != 0:
                 ksk_discount_value = ksk.discount / 100
                 total = total - total * ksk_discount_value
-                transaction.discount_value = total * ksk_discount_value
+                transaction.discount_value = total_for_discount_value * ksk_discount_value
                 transaction.is_discount = True
 
 
         transaction.total = total
         transaction.save()
 
-        # wartość rabatów z całego dnia na obrotach centralnych i sprzedawcy 
+        
 
         transactionform = TransactionForm
 
@@ -189,9 +193,12 @@ def sale_seller(request):
 
         transactions = Transaction.objects.filter(transaction_date__date=date, is_paid=True)
 
+        total_discount_value = 0.0
+
         all_products = []
 
         for obj in transactions:
+            total_discount_value += obj.discount_value
             allplu = obj.get_plu_list()
             for prod in allplu:
                 product = Product.objects.get(owner=group, plu_num=int(prod))
@@ -224,7 +231,7 @@ def sale_seller(request):
         tables.RequestConfig(request).configure(table)
         date_form = SalesDateForm
 
-        return render(request, 'panel/seller_sales.html', {'sales': table, 'date_form': date_form, 'date': date})
+        return render(request, 'panel/seller_sales.html', {'sales': table, 'date_form': date_form, 'date': date, 'discount_value': total_discount_value})
 
     else:
         group = request.user.groups.all()[0]
@@ -232,9 +239,12 @@ def sale_seller(request):
 
         transactions = Transaction.objects.filter(transaction_date__date=date_now, is_paid=True)
 
+        total_discount_value = 0.0
+
         all_products = []
 
         for obj in transactions:
+            total_discount_value += obj.discount_value
             allplu = obj.get_plu_list()
             for prod in allplu:
                 product = Product.objects.get(owner=group, plu_num=int(prod))
@@ -268,7 +278,7 @@ def sale_seller(request):
 
         date_form = SalesDateForm
 
-        return render(request, 'panel/seller_sales.html', {'sales': table, 'date_form': date_form, 'date': date_now})
+        return render(request, 'panel/seller_sales.html', {'sales': table, 'date_form': date_form, 'date': date_now, 'discount_value': total_discount_value})
 
 
 @login_required(login_url='/login')
@@ -307,9 +317,12 @@ def sales(request):
 
         transactions = Transaction.objects.filter(transaction_date__date=date, is_paid=True)
 
+        total_discount_value = 0.0
+
         all_products = []
 
         for obj in transactions:
+            total_discount_value += obj.discount_value
             allplu = obj.get_plu_list()
             for prod in allplu:
                 product = Product.objects.get(plu_num=int(prod), owner=obj.owner.groups.all()[0])
@@ -345,16 +358,19 @@ def sales(request):
         tables.RequestConfig(request).configure(table)
         date_form = SalesDateForm
 
-        return render(request, 'panel/central_sales.html', {'sales': table, 'date_form': date_form, 'date': date})
+        return render(request, 'panel/central_sales.html', {'sales': table, 'date_form': date_form, 'date': date, 'discount_value': total_discount_value})
 
     else:
 
         date_now = datetime.datetime.now().date()
         transactions = Transaction.objects.filter(transaction_date__date=date_now, is_paid=True)
 
+        total_discount_value = 0.0
+
         all_products = []
 
         for obj in transactions:
+            total_discount_value += obj.discount_value
             allplu = obj.get_plu_list()
             for prod in allplu:
                 product = Product.objects.get(plu_num=int(prod), owner=obj.owner.groups.all()[0])
@@ -390,7 +406,7 @@ def sales(request):
         tables.RequestConfig(request).configure(table)
         date_form = SalesDateForm
 
-        return render(request, 'panel/central_sales.html', {'sales': table, 'date_form': date_form, 'date': date_now})
+        return render(request, 'panel/central_sales.html', {'sales': table, 'date_form': date_form, 'date': date_now, 'discount_value': total_discount_value})
 
 
 class StockTable(tables.Table):
@@ -436,7 +452,7 @@ def product_view(request, pk):
 @login_required(login_url='/login')
 def management(request):
 
-    return render(request, 'panel/management.html')
+        return render(request, 'panel/management.html')
 
 
 @login_required(login_url='/login')
@@ -488,9 +504,68 @@ def priceandpromo(request, id):
 
 
 @login_required(login_url='/login')
-def orders(request):
+def orders_stand_choice(request):
 
-    return HttpResponse('Zamówienia')
+    if request.method == 'POST':
+        form = StandChoice(request.POST)
+
+        if form.is_valid():
+            owner = form.cleaned_data['owner']
+
+            return redirect('panel:Wybór plu zamówienia', owner)
+    else:
+        form = StandChoice()
+    
+    return render(request, 'panel/order_stand_choice.html', {'form': form})
+
+
+@login_required(login_url='/login')
+def orders_plu_choice(request, owner):
+    
+    owner = owner
+
+    if request.method == 'POST':
+        form = PluNumberChoice(request.POST)
+
+        if form.is_valid():
+            plu_num = form.cleaned_data['plu_num']
+            request.method = 'GET'
+            return orders(request, owner, plu_num)
+            
+    else:
+        form = PluNumberChoice()
+
+    return render(request, 'panel/order_plu_choice.html', {'form': form})
+
+
+@login_required(login_url='/login')
+def orders(request, owner, plu):
+    
+    owner = Group.objects.get(name=owner)
+    
+    try:
+        product = Product.objects.get(owner=owner, plu_num=plu)
+    except Product.DoesNotExist:
+        raise Http404('Nie ma produktu o takim PLU')
+    
+    if request.method == 'POST':
+        raise Http404()
+        form = OrderForm(request.POST)
+        
+#po zapisaniu forma przekierowuje z request.POSTem do poprzedniego widoku
+        if form.is_valid():
+            cz = form.cleaned_data['purchase_price']
+            quantity = form.cleaned_data['quantity']
+            
+            
+    
+    else:
+        form = OrderForm()
+        
+        
+        
+
+    return render(request, 'panel/orders.html', {'form': form})
 
 
 @login_required(login_url='/login')
