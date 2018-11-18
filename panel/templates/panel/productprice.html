@@ -5,7 +5,7 @@
 
 {% block content %}
 
-   <a href="{% url 'panel:Zmiana cen' %}" class="button">Wstecz</a>
+    <a href="{% url 'panel:Wybór plu zmiany cen' owner %}" class="button">Wstecz</a>
 
     <p>Nazwa: {{ product.art_name }}</p>
     <p>PLU: {{ product.plu_num }}</p>
@@ -16,11 +16,17 @@
     <p>Marża %: {{ product.zloty_margin }}</p>
     <p>VAT: {{ product.vat_value }}</p>
 
-    <form method="POST" class="post-form">
+    <form method="POST" class="post-form" onsubmit="javascript:AbyNaPewno();">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="save btn btn-default">Zapisz</button>
     </form>
 
+    <script>
+        function AbyNaPewno(){
+            var cena = document.getElementById('id_sales_price_brutto').value
+            alert('Zmiana ceny na ' + cena + ' zł')
+        }
+    </script>
 
 {% endblock %}

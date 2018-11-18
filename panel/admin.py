@@ -1,6 +1,6 @@
 from django.contrib import admin
 from simple_history.admin import SimpleHistoryAdmin
-from .models import Product, Stand, Ksk, Transaction
+from .models import Product, Stand, Ksk, Transaction, Order
 
 
 class ProductAdmin(SimpleHistoryAdmin):
@@ -55,10 +55,16 @@ class KskAdmin(admin.ModelAdmin):
 
 
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'plu_list', 'transaction_date', 'is_ksk', 'ksk_num', 'is_paid', 'is_discount', 'discount_value', 'total', 'owner')
+    list_display = ('id', 'plu_list', 'transaction_date', 'is_ksk', 'ksk_num',
+                     'is_paid', 'is_discount', 'discount_value', 'total', 'owner')
+
+
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('plu_num','quantity','purchase_price','entry_date','owner',)
 
 
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Stand, StandAdmin)
 admin.site.register(Ksk, KskAdmin)
 admin.site.register(Transaction, TransactionAdmin)
+admin.site.register(Order, OrderAdmin)

@@ -17,7 +17,7 @@ from django.utils import timezone
 from django_tables2 import A
 
 from .forms import KskForm, StandForm, StandCreationForm, TransactionForm, SalesDateForm, \
-    PriceChangesChoice, PriceAndPromoForm, KskCentralForm, StandChoice, PluNumberChoice, OrderForm
+    PriceForm, KskCentralForm, StandChoice, PluNumberChoice, OrderForm
 from .models import Product, Ksk, Transaction, Stand, Order
 from .tables import CentralSalesTable, SellerSalesTable
 
@@ -441,7 +441,7 @@ def stock(request):
 
     return render(request, 'panel/central_stock.html', {'stocks': table})
 
-@login_required(login_url='\login')
+@login_required(login_url='/login')
 def product_view(request, pk):
 
      product = get_object_or_404(Product, pk=pk)
@@ -455,37 +455,51 @@ def management(request):
         return render(request, 'panel/management.html')
 
 
+
 @login_required(login_url='/login')
-def price_changes(request):
+def price_changes_stand_choice(request):
 
     if request.method == 'POST':
-        form = PriceChangesChoice(request.POST)
+        form = StandChoice(request.POST)
+
+        if form.is_valid():
+            owner = form.cleaned_data['owner']
+
+            return redirect('panel:Wybór plu zmiany cen', owner)
+    else:
+        form = StandChoice()
+    
+    return render(request, 'panel/stand_choice.html', {'form': form})
+
+@login_required(login_url='/login')
+def price_changes_plu_choice(request, owner):
+
+    owner = owner
+
+    if request.method == 'POST':
+        form = PluNumberChoice(request.POST)
 
         if form.is_valid():
             plu_num = form.cleaned_data['plu_num']
-            owner = form.cleaned_data['owner']
-
-            try:
-                product = Product.objects.get(plu_num=plu_num, owner=owner)
-            except Product.DoesNotExist:
-                raise Http404('Nie ma takiego produktu.')
-
-            prod_id = product.id
-
-            return redirect('panel:Zmiana ceny', prod_id)
-
+            
+            return redirect('panel:Zmiana ceny', owner, plu_num)
+            
     else:
-        form = PriceChangesChoice()
+        form = PluNumberChoice()
 
-    return render(request, 'panel/price_changes.html', {'form': form})
+    return render(request, 'panel/plu_choice.html', {'form': form})
 
 
 @login_required(login_url='/login')
-def priceandpromo(request, id):
+def price_changes(request, owner, plu):
 
-    form = PriceAndPromoForm(request.POST)
+    owner = Group.objects.get(name=owner)
+    form = PriceForm(request.POST)
 
-    product = Product.objects.get(id=id)
+    try:
+        product = Product.objects.get(owner=owner, plu_num=plu)
+    except Product.DoesNotExist:
+        raise Http404('Nie ma takiego produktu')
 
     if request.method == 'POST':
 
@@ -493,14 +507,12 @@ def priceandpromo(request, id):
             new_csb = form['sales_price_brutto'].value()
             product.sales_price_brutto = float(new_csb)
             product.save()
-            return redirect('panel:Zmiana ceny', product.id)
+            return redirect('panel:Zmiana ceny', owner, plu)
 
     else:
-        form = PriceAndPromoForm()
+        form = PriceForm()
 
-    return render(request, 'panel/productprice.html', {'form': form, 'product': product})
-
-
+    return render(request, 'panel/productprice.html', {'form': form, 'product': product, 'owner': owner})
 
 
 @login_required(login_url='/login')
@@ -516,7 +528,7 @@ def orders_stand_choice(request):
     else:
         form = StandChoice()
     
-    return render(request, 'panel/order_stand_choice.html', {'form': form})
+    return render(request, 'panel/stand_choice.html', {'form': form})
 
 
 @login_required(login_url='/login')
@@ -529,13 +541,13 @@ def orders_plu_choice(request, owner):
 
         if form.is_valid():
             plu_num = form.cleaned_data['plu_num']
-            request.method = 'GET'
-            return orders(request, owner, plu_num)
+            
+            return redirect('panel:Zamówienia', owner, plu_num)
             
     else:
         form = PluNumberChoice()
 
-    return render(request, 'panel/order_plu_choice.html', {'form': form})
+    return render(request, 'panel/plu_choice.html', {'form': form})
 
 
 @login_required(login_url='/login')
@@ -549,16 +561,25 @@ def orders(request, owner, plu):
         raise Http404('Nie ma produktu o takim PLU')
     
     if request.method == 'POST':
-        raise Http404()
+        
         form = OrderForm(request.POST)
         
-#po zapisaniu forma przekierowuje z request.POSTem do poprzedniego widoku
         if form.is_valid():
             cz = form.cleaned_data['purchase_price']
             quantity = form.cleaned_data['quantity']
             
+            new_order = Order()
+            new_order.plu_num = plu
+            new_order.quantity = quantity
+            new_order.purchase_price = cz
+            new_order.owner = owner
+            new_order.save()
+
+            product.stock += quantity
+            product.save()
+
+            return redirect('panel:Wybór plu zamówienia', owner)
             
-    
     else:
         form = OrderForm()
         

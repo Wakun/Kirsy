@@ -56,14 +56,14 @@ class SalesDateForm(forms.Form):
 
     date = DateField(widget=forms.SelectDateWidget(), label='Wybierz datę', initial=timezone.now())
 
-
+"""
 class PriceChangesChoice(forms.Form):
 
     plu_num = forms.IntegerField(label='PLU')
     owner = forms.ModelChoiceField(queryset=Group.objects.all())
+"""
 
-
-class PriceAndPromoForm(forms.ModelForm):
+class PriceForm(forms.ModelForm):
 
     class Meta:
         model = Product

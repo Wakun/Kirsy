@@ -5,10 +5,18 @@
 
 {% block content %}
 
-    <form method="POST" class="post-form">
+    <form method="POST" class="post-form" onsubmit="AbyNaPewno();">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="save btn btn-default">Zapisz</button>
     </form>
+
+    <script>
+        function AbyNaPewno() {
+            var quantity = document.getElementById('id_quantity').value
+            var cz = document.getElementById('id_purchase_price').value
+            alert('Wprowadzisz zamówienie na ' + quantity + ' sztuk w cenie ' + cz + ' zł. Aby na pewno?')
+        }
+    </script>
 
 {% endblock %}
